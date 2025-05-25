@@ -1,9 +1,9 @@
-## DataScience_practice
+## Python and SQL For DataScience
 
 Welcome to the Data Science Practice repository! 🎉
 
 ## Purpose of this Repository
-This repository is designed for practice with popular Python libraries used in Data Science, including:
+This repository is designed for practice with popular Python and its libraries used in Data Science, including:
 
 - 🐼 **Pandas**: Data manipulation and analysis.
 - 📊 **NumPy**: Numerical computing.
