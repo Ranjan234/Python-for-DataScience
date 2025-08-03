@@ -1,4 +1,4 @@
-## Python and SQL For DataScience
+## Python For DataScience
 
 Welcome to the Data Science Practice repository! 🎉
 
