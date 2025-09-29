@@ -1,0 +1,19 @@
+Introduction to Feature Engineering and Handling Missing Data.
+It is crucial to understand that when solving data science, machine learning, or deep learning projects, the primary requirement is data.
+In real-world scenarios, especially when working with companies, you will often encounter messy raw data containing many missing values.
+
+Why Do Missing Values Occur?
+Missing values occur when some information is not recorded for a variable. For example, if a survey form is given to a sample of people, some individuals might not feel comfortable filling certain fields and leave them empty. This results in missing data.
+
+There are three main mechanisms by which missing values occur, which we will discuss and demonstrate with examples and code.
+
+1. Missing Completely at Random (MCAR)
+Missing Completely at Random (MCAR) is a type of missing data mechanism where the probability of a value being missing is unrelated to both observed and missing data. 
+In other words, missingness occurs randomly without any systematic reason.
+
+2. Missing at Random (MAR)
+Missing at Random (MAR) occurs when the probability of a value being missing depends only on the observed data. 
+This means missingness is systematically related to other observed variables.
+
+3. Missing Not at Random (MNAR)
+Missing Not at Random (MNAR) is a mechanism where the probability of missingness depends on the value of the missing data itself or unmeasured factors associated with it.
