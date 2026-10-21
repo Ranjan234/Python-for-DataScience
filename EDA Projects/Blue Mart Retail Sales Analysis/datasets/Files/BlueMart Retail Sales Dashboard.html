@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BlueMart Retail Sales Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+<style>
+:root{--bg:#f4f6f9;--card:#fff;--text:#1d2433;--muted:#667085;--grid:#e6e9ef;--head:#14213d;--a:#3b6fd4;--b:#e08a3c;--good:#2e9e5b;--bad:#d64545;--line:#e6e9ef;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f1420;--card:#171e2e;--text:#e8ecf4;--muted:#9aa5b8;--grid:#2a3347;--head:#0a0f1a;--a:#6b97ee;--b:#f0a45c;--good:#4cc183;--bad:#f06a6a;--line:#2a3347}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0f1420;--card:#171e2e;--text:#e8ecf4;--muted:#9aa5b8;--grid:#2a3347;--head:#0a0f1a;--a:#6b97ee;--b:#f0a45c;--good:#4cc183;--bad:#f06a6a;--line:#2a3347}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+.wrap{max-width:1300px;margin:0 auto;padding:16px}
+header{background:var(--head);color:#fff;padding:18px 22px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+header h1{font-size:20px}header small{display:block;opacity:.7;font-size:12px}
+header label{font-size:12px;opacity:.8;margin-right:6px}
+select{padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;font-size:13px}
+select option{color:#000}
+.grid{display:grid;gap:16px;margin-bottom:16px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.two{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
+.card{background:var(--card);border-radius:10px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.1);min-width:0}
+.k{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.v{font-size:28px;font-weight:700}
+.s{font-size:13px;color:var(--muted)}.up{color:var(--good)}.dn{color:var(--bad)}
+h3{font-size:14px;margin-bottom:2px}.sub{font-size:12px;color:var(--muted);margin-bottom:12px}
+.ch{position:relative;height:290px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 10px;border-bottom:2px solid var(--line);color:var(--muted);font-size:11px;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td.n,th.n{text-align:right}.low{color:var(--bad);font-weight:700}
+.ins{grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr))}
+.ins .card h4{font-size:15px;margin-bottom:6px}
+.ins p{font-size:13.5px;margin-bottom:6px}
+.ins .do{border-left:3px solid var(--good);padding-left:10px}
+.note{font-size:12px;color:var(--muted);padding:6px 4px 20px}
+@media print{header select{display:none}.card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><h1>BlueMart Retail Sales Dashboard</h1><small>Jan 2021 – Oct 2025 · 50 stores · Dubai, Abu Dhabi, Sharjah</small></div>
+  <div><label for="yr">Year</label><select id="yr"></select></div>
+</header>
+
+<section class="grid kpis">
+  <div class="card"><div class="k">Sales (selected period)</div><div class="v" id="k1"></div><div class="s" id="k1s"></div></div>
+  <div class="card"><div class="k">Profit (all years)</div><div class="v" id="k2"></div><div class="s" id="k2s"></div></div>
+  <div class="card"><div class="k">Best month (selected)</div><div class="v" id="k3"></div><div class="s" id="k3s"></div></div>
+  <div class="card"><div class="k">Weakest month (selected)</div><div class="v" id="k4"></div><div class="s" id="k4s"></div></div>
+</section>
+
+<section class="grid two">
+  <div class="card" style="grid-column:1/-1"><h3>Monthly sales</h3><div class="sub">Dashed line = average of the selected period. Use the Year filter to zoom in.</div><div class="ch"><canvas id="c1" role="img" aria-label="Monthly sales line chart"></canvas></div></div>
+  <div class="card"><h3>Seasonal pattern: average sales by calendar month</h3><div class="sub">Green = peak months, red = slow months (all years).</div><div class="ch"><canvas id="c2" role="img" aria-label="Average sales by calendar month"></canvas></div></div>
+  <div class="card"><h3>Sales and profit by category</h3><div class="sub">Hover for profit margin. Profit is all years.</div><div class="ch"><canvas id="c3" role="img" aria-label="Sales and profit by category"></canvas></div></div>
+  <div class="card"><h3>Sales by channel</h3><div class="sub">Share of total sales, all years.</div><div class="ch"><canvas id="c4" role="img" aria-label="Sales by channel"></canvas></div></div>
+  <div class="card"><h3>Cities: sales per store is almost equal</h3><div class="sub">Dubai leads because it has more stores, not because each store sells more.</div><div class="tw" id="t1"></div></div>
+  <div class="card" style="grid-column:1/-1"><h3>Best-selling products with a low profit margin</h3><div class="sub">SKUs above the median in sales but below the median in profit. Click a header to sort. Average margin is 28.8%.</div><div class="tw" id="t2"></div></div>
+</section>
+
+<h3 style="margin:8px 4px 10px;font-size:17px">Insights and recommendations</h3>
+<section class="grid ins">
+  <div class="card"><h4>1. Sales follow the seasons, and they are not growing</h4>
+    <p>January and February are the peak (about $2.0M and $1.8M a month). September to November are the slowest ($0.75M–$0.82M). December is also weak ($1.07M), so it is not a peak. Yearly sales stayed between $14.6M and $15.3M from 2021 to 2024.</p>
+    <p class="do"><b>Do:</b> Plan stock and staff for Jan–Feb. Run offers in Sep–Nov. Do not over-order for December.</p></div>
+  <div class="card"><h4>2. 2025 is behind 2024</h4>
+    <p>For January to October, 2025 made $13.06M and 2024 made $13.52M. That is 3.4% lower. The spring dip moved: March rose to $1.58M, but April fell to $0.74M (it was $1.20M in 2024).</p>
+    <p class="do"><b>Do:</b> Check which channels and categories fell in 2025. Study April 2025 first.</p></div>
+  <div class="card"><h4>3. Electronics is more than half of the business</h4>
+    <p>Electronics gives 55.7% of sales and 56% of profit. Batteries, cables, chargers and mobile accessories make almost all of that profit ($11.8M). Margins are close in every category (about 29%), except Personal Care (25.9%).</p>
+    <p class="do"><b>Do:</b> Protect Electronics supply and price. Sell bundles (charger + cable + battery). Review Personal Care prices and costs.</p></div>
+  <div class="card"><h4>4. City does not drive sales. Store count does.</h4>
+    <p>Every city sells about $1.46M per store. Dubai has 56% of sales because it has 56% of stores. So Abu Dhabi and Sharjah are not weaker. Each store earns about $0.3M a year.</p>
+    <p class="do"><b>Do:</b> Grow by opening stores or adding services, in any city. Learn from the top stores, but expect small gains: all stores are within about 2.5% of each other.</p></div>
+  <div class="card"><h4>5. Online is bigger than stores</h4>
+    <p>Stores give 41.3% of sales. Online gives 58.7%: website 27.7%, mobile app 17.9%, Amazon.ae and Noon 13.1%. The website sells 1.5 times more than the app.</p>
+    <p class="do"><b>Do:</b> Improve the app (offers, notifications). Check the fees on Amazon.ae and Noon. Next step: compare profit margin by channel.</p></div>
+  <div class="card"><h4>6. Three popular products earn too little</h4>
+    <p>Rice (SKU 1121) has a 14.4% margin. Paper Products (1028) has 18.1%. Soap (1156) has 19.2%. The average is 28.8%.</p>
+    <p class="do"><b>Do:</b> Raise the price or cut the cost. Reaching a 25% margin would add about $65K over the 58 months. It is small but easy.</p></div>
+</section>
+<div class="note"><b>Data notes.</b> Built from the totals in the notebook (641,798 sales rows after removing 45 duplicates). Profit = sales − cost × quantity. Profit, category, channel, city and SKU figures are for all years, so only the sales KPI, the best/weakest month and the monthly chart change with the Year filter. About 25% of sales rows have no customer ID, so repeat buying cannot be tracked. Stock check (31 Oct 2025): no store–SKU is below its reorder point, so stockout risk is low.</div>
+</div>
+
+<script>
+const M=[1980260.06,1985618.84,830610.94,1205290.58,1714872.08,1102448.76,1593500.17,1534914.44,743017.49,746654.89,880963.22,1010790.03,1975515.34,1670850.70,744344.15,1496533.15,1272515.50,1047882.41,1551056.51,1597754.29,762628.04,832061.60,802755.82,1147061.74,2014695.08,1655498.63,995092.53,1396463.52,1114112.14,1124356.88,1401382.51,1452965.16,722727.15,804104.01,794452.48,1099200.26,2189798.22,1812283.81,1330568.12,1200399.59,1127492.38,1176729.44,1571128.50,1553422.98,755062.64,802670.08,807959.95,1013185.51,2021715.49,1744411.75,1583157.94,743263.66,1137610.56,1210872.99,1526375.88,1574254.85,751052.06,771415.49];
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const L=M.map((_,i)=>MN[i%12]+' '+(2021+Math.floor(i/12)));
+const CAT=[['Electronics',40790950.89,11848265.14],['Household',8190735.92,2360418.07],['Personal Care',8181799.29,2115959.34],['Grocery',5564702.41,1661022.56],['Snacks',4321275.25,1299444.11],['Dairy',4238161.64,1237884.73],['Beverages',1922157.59,574416.61]];
+const CH=[['Store',30227603.54],['Website',20299836.60],['MobileApp',13097435.70],['Amazon.ae',6470717.92],['Noon',3114189.23]];
+const CITY=[['Dubai',28,41041586.36],['Abu Dhabi',14,20492594.10],['Sharjah',8,11675602.53]];
+const SKU=[['Dairy_Cream_1015',216990.20,53024.38],['Grocery_Canned Goods_1029',221385.97,53295.53],['Grocery_Pasta_1196',240533.99,56561.85],['Grocery_Rice_1121',252178.55,36236.60],['Grocery_Spices_1128',210567.09,53687.09],['Household_Cleaning Supplies_1179',225473.13,59049.43],['Household_Paper Products_1028',321556.41,58348.01],['Personal Care_Soap_1156',279936.17,53765.73]].map(r=>({sku:r[0],sales:r[1],profit:r[2],margin:r[2]/r[1]*100}));
+const $=id=>document.getElementById(id);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fm=v=>v>=1e6?'$'+(v/1e6).toFixed(2)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+Math.round(v);
+const sum=a=>a.reduce((x,y)=>x+y,0);
+const TS=sum(CAT.map(c=>c[1])),TP=sum(CAT.map(c=>c[2]));
+const charts={};
+function themeUp(){Chart.defaults.color=css('--muted');Chart.defaults.borderColor=css('--grid');Object.values(charts).forEach(c=>c.update('none'))}
+Chart.defaults.font.family='-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif';
+Chart.defaults.color=css('--muted');Chart.defaults.borderColor=css('--grid');
+const base={responsive:true,maintainAspectRatio:false};
+
+// year filter
+const yr=$('yr');['All years',2021,2022,2023,2024,2025].forEach((y,i)=>{const o=document.createElement('option');o.value=i?y:'all';o.textContent=y;yr.appendChild(o)});
+
+// charts
+const A=css('--a'),B=css('--b');
+charts.c1=new Chart($('c1'),{type:'line',data:{labels:[],datasets:[{label:'Sales',data:[],borderColor:A,backgroundColor:A+'22',fill:true,tension:.25,pointRadius:3,pointHoverRadius:6},{label:'Average',data:[],borderColor:B,borderDash:[6,5],pointRadius:0,borderWidth:2}]},
+ options:{...base,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{usePointStyle:true}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fm(c.parsed.y)}}},scales:{x:{grid:{display:false},ticks:{maxRotation:60,autoSkip:true,maxTicksLimit:20}},y:{beginAtZero:true,ticks:{callback:v=>fm(v)}}}}});
+
+const avg=MN.map((_,k)=>{const v=M.filter((_,i)=>i%12===k);return sum(v)/v.length}),mean=sum(avg)/12;
+charts.c2=new Chart($('c2'),{type:'bar',data:{labels:MN,datasets:[{data:avg,borderRadius:4,backgroundColor:avg.map(v=>v>mean*1.3?css('--good'):v<mean*.75?css('--bad'):A)}]},
+ options:{...base,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Average: '+fm(c.parsed.y)}}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,ticks:{callback:v=>fm(v)}}}}});
+
+charts.c3=new Chart($('c3'),{type:'bar',data:{labels:CAT.map(c=>c[0]),datasets:[{label:'Sales',data:CAT.map(c=>c[1]),backgroundColor:A,borderRadius:3},{label:'Profit',data:CAT.map(c=>c[2]),backgroundColor:B,borderRadius:3}]},
+ options:{...base,indexAxis:'y',plugins:{legend:{labels:{usePointStyle:true}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fm(c.parsed.x),afterBody:i=>{const r=CAT[i[0].dataIndex];return 'Margin: '+(r[2]/r[1]*100).toFixed(1)+'%'}}}},scales:{x:{beginAtZero:true,ticks:{callback:v=>fm(v)}},y:{grid:{display:false},reverse:false}}}});
+
+charts.c4=new Chart($('c4'),{type:'doughnut',data:{labels:CH.map(c=>c[0]),datasets:[{data:CH.map(c=>c[1]),backgroundColor:[A,B,'#55a868','#8172b3','#c44e52'],borderColor:css('--card'),borderWidth:2}]},
+ options:{...base,cutout:'58%',plugins:{legend:{position:'right',labels:{usePointStyle:true}},tooltip:{callbacks:{label:c=>c.label+': '+fm(c.parsed)+' ('+(c.parsed/TS*100).toFixed(1)+'%)'}}}}});
+
+// tables
+function table(el,cols,rows,sk,dir){
+  const box=$(el);
+  function draw(){
+    const r=[...rows];if(sk){r.sort((a,b)=>(a[sk]>b[sk]?1:a[sk]<b[sk]?-1:0)*dir)}
+    box.innerHTML='<table><thead><tr>'+cols.map(c=>`<th class="${c.n?'n':''}" data-k="${c.k}">${c.l}${sk===c.k?(dir>0?' ▲':' ▼'):''}</th>`).join('')+'</tr></thead><tbody>'+
+      r.map(x=>'<tr>'+cols.map(c=>`<td class="${c.n?'n':''} ${c.cls&&c.cls(x)||''}">${c.f?c.f(x[c.k]):x[c.k]}</td>`).join('')+'</tr>').join('')+'</tbody></table>';
+    box.querySelectorAll('th').forEach(h=>h.onclick=()=>{const k=h.dataset.k;dir=sk===k?-dir:1;sk=k;draw()});
+  }
+  draw();
+}
+table('t1',[{k:'city',l:'City'},{k:'stores',l:'Stores',n:1},{k:'sales',l:'Sales',n:1,f:fm},{k:'per',l:'Sales / store',n:1,f:fm},{k:'ss',l:'Share of stores',n:1,f:v=>v.toFixed(0)+'%'},{k:'sh',l:'Share of sales',n:1,f:v=>v.toFixed(1)+'%'}],
+  CITY.map(c=>({city:c[0],stores:c[1],sales:c[2],per:c[2]/c[1],ss:c[1]/50*100,sh:c[2]/TS*100})),'sales',-1);
+table('t2',[{k:'sku',l:'Product (SKU)'},{k:'sales',l:'Sales',n:1,f:fm},{k:'profit',l:'Profit',n:1,f:fm},{k:'margin',l:'Margin',n:1,f:v=>v.toFixed(1)+'%',cls:r=>r.margin<20?'low':''}],SKU,'margin',1);
+
+// render with filter
+function render(){
+  const y=yr.value,i0=y==='all'?0:(+y-2021)*12,n=y==='all'?M.length:Math.min(12,M.length-i0);
+  const d=M.slice(i0,i0+n),lb=L.slice(i0,i0+n),t=sum(d),av=t/n;
+  $('k1').textContent=fm(t);
+  if(y!=='all'&&i0>0){const p=sum(M.slice(i0-12,i0-12+n)),c=(t/p-1)*100;$('k1s').innerHTML=`<span class="${c>=0?'up':'dn'}">${c>=0?'+':''}${c.toFixed(1)}%</span> vs same ${n} months of ${+y-1}`}
+  else $('k1s').textContent=n+' months · avg '+fm(av)+' / month';
+  $('k2').textContent=fm(TP);$('k2s').textContent='Margin '+(TP/TS*100).toFixed(1)+'% on '+fm(TS)+' sales';
+  const mx=d.indexOf(Math.max(...d)),mn=d.indexOf(Math.min(...d));
+  $('k3').textContent=fm(d[mx]);$('k3s').textContent=lb[mx];
+  $('k4').textContent=fm(d[mn]);$('k4s').textContent=lb[mn];
+  const c=charts.c1;c.data.labels=lb;c.data.datasets[0].data=d;c.data.datasets[1].data=d.map(()=>av);c.update('none');
+}
+yr.onchange=render;render();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>setTimeout(themeUp,50));
+</script>
+</body>
+</html>
