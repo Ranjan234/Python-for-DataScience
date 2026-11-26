@@ -83,9 +83,9 @@ python hospital_analysis.py
 
 After running the script, the charts are saved in `figures/`:
 
-![Monthly billing](figures/monthly_billing.png)
-![Appointment status](figures/status_distribution.png)
-![Cost by treatment](figures/cost_by_treatment.png)
+![Monthly billing](https://github.com/Ranjan234/Python-for-DataScience/blob/main/EDA%20Projects/Hospital%20Records%20Analysis%20(2023)/Data/Files/Image/Monthly%20Billing%20Distribution.png)
+![Appointment status](https://github.com/Ranjan234/Python-for-DataScience/blob/main/EDA%20Projects/Hospital%20Records%20Analysis%20(2023)/Data/Files/Image/Monthly%20Appointments%20Trend.png)
+![Cost by treatment](https://github.com/Ranjan234/Python-for-DataScience/blob/main/EDA%20Projects/Hospital%20Records%20Analysis%20(2023)/Data/Files/Image/Average%20Cost%20by%20Treatment%20Type.png)
 
 ## Next steps
 
