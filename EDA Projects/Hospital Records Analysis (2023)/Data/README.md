@@ -2,8 +2,6 @@
 
 Exploratory data analysis of one year (Jan–Dec 2023) of hospital operations: patients, appointments, doctors, treatments and billing. Five relational tables are merged into one analysis table and explored with Python (pandas, matplotlib, seaborn, scipy).
 
-> **Data note:** `[REPLACE: state where the data comes from.]` The data shows signs of being synthetic (see [Data quality notes](#data-quality-notes)), so findings describe *this dataset*, not real-world hospital performance. If any file contains real patient data, do **not** commit it.
-
 ## Dataset
 
 | Table | Rows | Key columns |
